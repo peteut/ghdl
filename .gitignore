@@ -1,0 +1,17 @@
+# Object file
+*.o
+
+# Ada Library Information
+*.ali
+
+lib
+libgrt.a
+run-bind.*
+grt.lst
+grt-files*
+b~*
+config.status
+default_pathes.ads
+ghdl*llvm
+Makefile
+ghdl.gpr
