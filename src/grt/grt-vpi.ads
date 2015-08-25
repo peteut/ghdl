@@ -209,6 +209,11 @@ package Grt.Vpi is
                                return vpiHandle;
    pragma Export (C, vpi_handle_by_index, "vpi_handle_by_index");
 
+   -- vpiHandle vpi_handle_by_name(const char *name, vpiHandle scope)
+   function vpi_handle_by_name(name: Ghdl_C_String; Ref: vpiHandle)
+                              return vpiHandle;
+   pragma Export (C, vpi_handle_by_name, "vpi_handle_by_name");
+
    -- unsigned int vpi_mcd_close(unsigned int mcd)
    function vpi_mcd_close (Mcd : Integer) return Integer;
    pragma Export (C, vpi_mcd_close, "vpi_mcd_close");

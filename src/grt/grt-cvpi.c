@@ -69,7 +69,7 @@ vpiHandle    vpi_put_value       (vpiHandle obj, p_vpi_value value,
 int          vpi_free_object     (vpiHandle ref);
 int          vpi_get_vlog_info   (p_vpi_vlog_info vlog_info_p);
 int          vpi_chk_error       (p_vpi_error_info info);
-vpiHandle    vpi_handle_by_name  (char *name, vpiHandle scope);
+vpiHandle    vpi_handle_by_name  (const char *name, vpiHandle scope);
 
 typedef struct {
 	int magic;
@@ -98,12 +98,12 @@ typedef struct {
 	int          (*vpi_free_object)    (vpiHandle ref);
 	int          (*vpi_get_vlog_info)  (p_vpi_vlog_info vlog_info_p);
 	int          (*vpi_chk_error)      (p_vpi_error_info info);
-	vpiHandle    (*vpi_handle_by_name) (char *name, vpiHandle scope);
+	vpiHandle    (*vpi_handle_by_name) (const char *name, vpiHandle scope);
 } vpi_thunk, *p_vpi_thunk;
 
 int vpi_register_sim(p_vpi_thunk tp);
 
-static vpi_thunk thunkTable = 
+static vpi_thunk thunkTable =
 {	VPI_THUNK_MAGIC,
 	vpi_register_systf,
 	vpi_vprintf,
@@ -129,7 +129,7 @@ static vpi_thunk thunkTable =
 	vpi_free_object,
 	vpi_get_vlog_info,
 	0, //vpi_chk_error,
-	0 //vpi_handle_by_name
+	vpi_handle_by_name
 };
 
 //-----------------------------------------------------------------------------
@@ -202,7 +202,7 @@ loadVpiModule (const char* modulename)
       "vpi_register_sim"        // w/o  leading underscore: Linux
     };
 
-  int i;	
+  int i;
   void* vpimod;
 
   fprintf (stderr, "loading VPI module '%s'\n", modulename);
@@ -223,15 +223,15 @@ loadVpiModule (const char* modulename)
     {
       void* vpithunk;
       void* vpitable;
-	  
+
       vpitable = module_symbol (vpimod, vpitablenames[i]);
       vpithunk = module_symbol (vpimod, vpithunknames[i]);
-	  
+
       if (vpithunk)
 	{
 	  typedef int (*funT)(p_vpi_thunk tp);
 	  funT regsim;
-	  
+
 	  regsim = (funT)vpithunk;
 	  regsim (&thunkTable);
 	}
@@ -240,20 +240,20 @@ loadVpiModule (const char* modulename)
 	  // this is not an error, as the register-mechanism
 	  // is not standardized
 	}
-      
+
       if (vpitable)
 	{
 	  unsigned int tmp;
 	  //extern void (*vlog_startup_routines[])();
 	  typedef void (*vlog_startup_routines_t)(void);
 	  vlog_startup_routines_t *vpifuns;
-				
+
 	  vpifuns = (vlog_startup_routines_t*)vpitable;
 	  for (tmp = 0; vpifuns[tmp]; tmp++)
 	    {
 	      vpifuns[tmp]();
 	    }
-	  
+
 	  fprintf (stderr, "VPI module loaded!\n");
 	  return 0; // successfully registered VPI module
 	}

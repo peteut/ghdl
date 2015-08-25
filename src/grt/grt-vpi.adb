@@ -800,6 +800,38 @@ package body Grt.Vpi is
       return null;
    end vpi_handle_by_index;
 
+   -- vpiHandle vpi_handle_by_name(const char *name, vpiHandle scope)
+   function vpi_handle_by_name(name: Ghdl_C_String; Ref: vpiHandle)
+                              return vpiHandle
+   is
+      Res: vpiHandle;
+      S: Ghdl_C_String;
+   begin
+      -- get TOP module
+      if Ref = null then
+         Res := vpi_iterate(vpiModule, null);
+         Res := vpi_scan(Res);
+         if Res = null then return null; end if;
+         -- get scope
+         Res := vpi_handle(vpiScope, Res);
+         if Res = null then return null; end if;
+      else
+         Res := Ref;
+      end if;
+      -- get signal
+      Res := vpi_iterate(vpiNet, Res);
+      if Res = null then return null; end if;
+      loop
+         Res := vpi_scan(Res);
+         exit when Res = null;
+         S := vpi_get_str(vpiFullName, Res);
+         if Strcmp(name, S) = 0 then
+            return Res;
+         end if;
+      end loop;
+      return null;
+   end vpi_handle_by_name;
+
    -- unsigned int vpi_mcd_close(unsigned int mcd)
    function vpi_mcd_close (Mcd: integer) return integer
    is
